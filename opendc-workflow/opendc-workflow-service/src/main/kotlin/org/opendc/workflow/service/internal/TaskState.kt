@@ -25,7 +25,7 @@ package org.opendc.workflow.service.internal
 import org.opendc.compute.api.Server
 import org.opendc.workflow.api.Task
 
-public class TaskState(public val job: JobState, public val task: Task) {
+public class TaskState(public val job: JobState, public var task: Task) {
     /**
      * The moment in time the task was started.
      */
