@@ -84,12 +84,12 @@ public class WorkflowServiceImpl(
     /**
      * The job queue.
      */
-    private val jobQueue: Queue<JobState>
+    internal val jobQueue: Queue<JobState>
 
     /**
      * The task queue.
      */
-    private val taskQueue: Queue<TaskState>
+    internal val taskQueue: Queue<TaskState>
 
     /**
      * The active jobs in the system.
