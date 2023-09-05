@@ -67,7 +67,7 @@ import java.util.function.Supplier
 public class SimHost(
     private val uid: UUID,
     private val name: String,
-    private val meta: Map<String, Any>,
+    private var meta: Map<String, Any>,
     private val clock: InstantSource,
     private val machine: SimBareMetalMachine,
     private val hypervisor: SimHypervisor,
