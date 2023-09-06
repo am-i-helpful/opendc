@@ -153,7 +153,17 @@ public class HEFTPolicy(private val hosts : Set<HostSpec>) : TaskOrderPolicy{ //
      * Implementation/definition required for inheriting TaskOrderPolicy class
      */
     override fun invoke(scheduler: WorkflowServiceImpl): Comparator<TaskState> {
-        TODO("Would not be implemented!")
+        // TODO: "Would not be implemented!"
+        // reference - https://stackoverflow.com/questions/55449443/using-comparator-in-kotlin
+        return Comparator<TaskState> { a, b ->
+            when {
+                a == null && b == null -> return@Comparator 0
+                a == null -> return@Comparator -1
+                b == null -> return@Comparator 1
+
+                else -> return@Comparator 0
+            }
+        }
     }
 
 }
