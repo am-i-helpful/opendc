@@ -39,6 +39,7 @@ import java.time.Duration
  * The workflow scheduler is modelled after the Reference Architecture for Topology Scheduling by Andreadis et al.
  */
 public interface WorkflowService : AutoCloseable {
+    public var isFaultInjected: Boolean
     /**
      * Submit the specified [Job] and suspend execution until the job is finished.
      */
@@ -73,7 +74,8 @@ public interface WorkflowService : AutoCloseable {
             jobAdmissionPolicy: JobAdmissionPolicy,
             jobOrderPolicy: JobOrderPolicy,
             taskEligibilityPolicy: TaskEligibilityPolicy,
-            taskOrderPolicy: TaskOrderPolicy
+            taskOrderPolicy: TaskOrderPolicy,
+            isFaultInjected: Boolean
         ): WorkflowService {
             return WorkflowServiceImpl(
                 dispatcher,
@@ -82,7 +84,8 @@ public interface WorkflowService : AutoCloseable {
                 jobAdmissionPolicy,
                 jobOrderPolicy,
                 taskEligibilityPolicy,
-                taskOrderPolicy
+                taskOrderPolicy,
+                isFaultInjected
             )
         }
     }

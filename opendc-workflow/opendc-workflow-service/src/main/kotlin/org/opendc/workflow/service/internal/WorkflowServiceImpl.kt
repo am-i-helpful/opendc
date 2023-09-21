@@ -59,8 +59,11 @@ public class WorkflowServiceImpl(
     jobAdmissionPolicy: JobAdmissionPolicy,
     jobOrderPolicy: JobOrderPolicy,
     taskEligibilityPolicy: TaskEligibilityPolicy,
-    taskOrderPolicy: TaskOrderPolicy
+    taskOrderPolicy: TaskOrderPolicy,
+    isFaultInjected: Boolean
 ) : WorkflowService, ServerWatcher {
+
+    public override var isFaultInjected: Boolean = isFaultInjected
     /**
      * The [CoroutineScope] of the service bounded by the lifecycle of the service.
      */
@@ -308,6 +311,11 @@ public class WorkflowServiceImpl(
 
                 server.watch(this@WorkflowServiceImpl)
                 server.start()
+
+                // injecting fault on a random node 9 in the cluster (lucky number 😆)
+                if(isFaultInjected){
+                    println("Fault injection is enabled!!!")
+                }
             }
 
             activeTasks += instance
