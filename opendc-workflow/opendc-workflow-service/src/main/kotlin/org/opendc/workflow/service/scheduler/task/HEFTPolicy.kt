@@ -14,12 +14,12 @@ import org.opendc.workflow.api.WORKFLOW_TASK_CORES
  * Extends TaskOrderPolicy class for allowing its execution.
  */
 
-public class HEFTPolicy(private val hosts : Set<HostSpec>) : TaskOrderPolicy{ //HolisticTaskOrderPolicy
+public class HEFTPolicy(private val hosts : Set<HostSpec>) : HolisticTaskOrderPolicy{ //HolisticTaskOrderPolicy
     /**
      * A set of tasks is transformed into a queue by applying HEFT algorithm.
      * @param tasks eligible tasks for scheduling
      */
-    public fun orderTasks(tasks: Set<TaskState>) : Queue<TaskState>{
+    public override fun orderTasks(tasks: List<TaskState>) : Queue<TaskState>{
         val pendingTasks = tasks.toMutableSet()
         for (task in pendingTasks) {
             addUpwardRankToMetadata(task)
@@ -153,7 +153,7 @@ public class HEFTPolicy(private val hosts : Set<HostSpec>) : TaskOrderPolicy{ //
      * Implementation/definition required for inheriting TaskOrderPolicy class
      */
     override fun invoke(scheduler: WorkflowServiceImpl): Comparator<TaskState> {
-        // TODO: "Would not be implemented!"
+//        TODO("Would not be implemented!")
         // reference - https://stackoverflow.com/questions/55449443/using-comparator-in-kotlin
         return Comparator<TaskState> { a, b ->
             when {

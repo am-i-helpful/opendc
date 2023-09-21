@@ -9,7 +9,7 @@ import java.util.*
 
 private data class ExecutionSpec(val task: TaskState, val host: HostSpec, val selectedCpus: List<ProcessingUnit>, val completionTime: Double)
 
-public class MinMinPolicy(public val hosts : Set<HostSpec>) : TaskOrderPolicy {
+public class MinMinPolicy(public val hosts : Set<HostSpec>) : HolisticTaskOrderPolicy {
     // A nested map of hosts, CPU cores, and the time a new task could start on this core.
     private val startTimes = hosts.associateBy(
         { host -> host },
@@ -19,7 +19,7 @@ public class MinMinPolicy(public val hosts : Set<HostSpec>) : TaskOrderPolicy {
      * A set of tasks is transformed into a queue by applying Min-Min.
      * @param tasks eligible tasks for scheduling
      */
-    public fun orderTasks(tasks: Set<TaskState>): Queue<TaskState> {
+    public override fun orderTasks(tasks: List<TaskState>): Queue<TaskState> {
         val unmappedTasks = tasks.toMutableSet()
         val orderedTasks = LinkedList<TaskState>()
 
@@ -116,7 +116,7 @@ public class MinMinPolicy(public val hosts : Set<HostSpec>) : TaskOrderPolicy {
     }
 
     override fun invoke(scheduler: WorkflowServiceImpl): Comparator<TaskState> {
-        // TODO("This will never be implemented, because this is just a dirty hack to get our policy running without changing doSchedule too much ¯\\_(ツ)_/¯")
+//        TODO("This will never be implemented, because this is just a dirty hack to get our policy running without changing doSchedule too much ¯\\_(ツ)_/¯")
         // reference - https://stackoverflow.com/questions/55449443/using-comparator-in-kotlin
         return Comparator<TaskState> { a, b ->
             when {

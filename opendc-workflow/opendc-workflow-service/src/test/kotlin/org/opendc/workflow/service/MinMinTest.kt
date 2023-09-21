@@ -220,10 +220,10 @@ class MinMinTest {
         )
     }
 
-    private fun createInputForPolicy(tasks: HashSet<Task>, context: CoroutineContext): HashSet<TaskState> {
+    private fun createInputForPolicy(tasks: HashSet<Task>, context: CoroutineContext): List<TaskState> {
         val cont = Continuation<Unit>(context) { ; }
         val job = JobState(Job(UUID.randomUUID(), "onlyJob", tasks), 0, cont)
-        return tasks.map({ TaskState(job, it) }).toHashSet()
+        return tasks.map({ TaskState(job, it) }).toMutableList()
     }
 
 

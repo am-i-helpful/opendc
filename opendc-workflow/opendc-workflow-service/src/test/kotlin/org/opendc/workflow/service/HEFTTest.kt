@@ -133,7 +133,7 @@ class HEFTTest {
         )
     }
 
-    private fun createInputForPolicy(tasks: Set<Task>, context: CoroutineContext): Set<TaskState> {
+    private fun createInputForPolicy(tasks: Set<Task>, context: CoroutineContext): List<TaskState> {
         val cont = Continuation<Unit>(context) { ; }
         val job = JobState(Job(UUID.randomUUID(), "onlyJob", tasks), 0, cont)
         val taskInstances = tasks.associateWith { TaskState(job, it) }
@@ -145,6 +145,6 @@ class HEFTTest {
             }
         }
 
-        return taskInstances.values.toSet()
+        return taskInstances.values.toMutableList()
     }
 }
