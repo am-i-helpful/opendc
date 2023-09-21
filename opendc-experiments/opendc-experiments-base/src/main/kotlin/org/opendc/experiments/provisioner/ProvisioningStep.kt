@@ -36,7 +36,7 @@ public fun interface ProvisioningStep {
      * @param ctx The environment in which the resources should be provisioned.
      * @return A handle that is invoked once the simulation completes, so that the resources can be cleaned up.
      */
-    public fun apply(ctx: ProvisioningContext, isFaultInjected: Boolean): AutoCloseable
+    public fun apply(ctx: ProvisioningContext): AutoCloseable
 
     /**
      * A factory interface for [ProvisioningStep] instances.

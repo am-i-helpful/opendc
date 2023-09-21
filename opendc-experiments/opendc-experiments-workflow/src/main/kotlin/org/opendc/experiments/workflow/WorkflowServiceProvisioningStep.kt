@@ -42,7 +42,7 @@ public class WorkflowServiceProvisioningStep internal constructor(
     private val scheduler: WorkflowSchedulerSpec,
     private val schedulingQuantum: Duration
 ) : ProvisioningStep {
-    override fun apply(ctx: ProvisioningContext, isFaultInjected: Boolean): AutoCloseable {
+    override fun apply(ctx: ProvisioningContext): AutoCloseable {
         val computeService = requireNotNull(ctx.registry.resolve(computeService, ComputeService::class.java)) { "Compute service $computeService does not exist" }
 
         val client = computeService.newClient()
@@ -54,7 +54,7 @@ public class WorkflowServiceProvisioningStep internal constructor(
             jobOrderPolicy = scheduler.jobOrderPolicy,
             taskEligibilityPolicy = scheduler.taskEligibilityPolicy,
             taskOrderPolicy = scheduler.taskOrderPolicy,
-            isFaultInjected = isFaultInjected
+            isFaultInjected = false
         )
         ctx.registry.register(serviceDomain, WorkflowService::class.java, service)
 

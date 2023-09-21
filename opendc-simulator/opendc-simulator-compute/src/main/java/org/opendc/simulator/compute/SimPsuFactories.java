@@ -108,6 +108,11 @@ public class SimPsuFactories {
         public Outlet getFlowOutlet() {
             return out;
         }
+
+        @Override
+        public void setFaultyPowerUsageForExperiment(){
+            ;// do nothing, just introduced for the sake of fault-related experimentation!
+        }
     }
 
     /**
@@ -156,6 +161,12 @@ public class SimPsuFactories {
         @Override
         public double getPowerUsage() {
             return powerUsage;
+        }
+
+        @Override
+        public void setFaultyPowerUsageForExperiment(){
+            // added 10W extra power usage on the selected host for anomaly-experiment purpose
+            powerUsage += 10;
         }
 
         @Override

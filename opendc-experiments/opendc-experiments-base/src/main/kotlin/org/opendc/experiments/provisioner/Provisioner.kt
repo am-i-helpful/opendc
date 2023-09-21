@@ -50,7 +50,7 @@ public class Provisioner(dispatcher: Dispatcher, seed: Long, isFaultInjected: Bo
 
         override fun toString(): String = "Provisioner.ProvisioningContext"
     }
-    private val isFaultInjected: Boolean = isFaultInjected
+    // private val isFaultInjected: Boolean = isFaultInjected
 
     /**
      * The stack of handles to run during the clean-up process.
@@ -69,7 +69,7 @@ public class Provisioner(dispatcher: Dispatcher, seed: Long, isFaultInjected: Bo
      * @param step The step to apply to the environment.
      */
     public fun runStep(step: ProvisioningStep) {
-        val handle = step.apply(context, isFaultInjected)
+        val handle = step.apply(context)
         stack.push(handle)
     }
 
@@ -82,7 +82,7 @@ public class Provisioner(dispatcher: Dispatcher, seed: Long, isFaultInjected: Bo
         val ctx = context
         val stack = stack
         for (step in steps) {
-            val handle = step.apply(ctx, isFaultInjected)
+            val handle = step.apply(ctx)
             stack.push(handle)
         }
     }

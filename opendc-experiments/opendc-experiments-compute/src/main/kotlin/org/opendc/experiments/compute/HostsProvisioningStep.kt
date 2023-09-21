@@ -42,10 +42,9 @@ import java.util.SplittableRandom
 public class HostsProvisioningStep internal constructor(
     private val serviceDomain: String,
     private val specs: List<HostSpec>,
-    private val optimize: Boolean,
-    private val isFaultInjected: Boolean
+    private val optimize: Boolean
 ) : ProvisioningStep {
-    override fun apply(ctx: ProvisioningContext, isFaultInjected: Boolean): AutoCloseable {
+    override fun apply(ctx: ProvisioningContext): AutoCloseable {
         val service = requireNotNull(ctx.registry.resolve(serviceDomain, ComputeService::class.java)) { "Compute service $serviceDomain does not exist" }
         val engine = FlowEngine.create(ctx.dispatcher)
         val graph = engine.newGraph()

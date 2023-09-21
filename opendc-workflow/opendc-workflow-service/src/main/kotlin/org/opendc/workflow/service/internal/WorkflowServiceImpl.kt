@@ -34,6 +34,7 @@ import org.opendc.compute.api.Image
 import org.opendc.compute.api.Server
 import org.opendc.compute.api.ServerState
 import org.opendc.compute.api.ServerWatcher
+import org.opendc.experiments.compute.setupHosts
 import org.opendc.workflow.api.Job
 import org.opendc.workflow.api.WORKFLOW_TASK_CORES
 import org.opendc.workflow.service.WorkflowService
@@ -311,11 +312,6 @@ public class WorkflowServiceImpl(
 
                 server.watch(this@WorkflowServiceImpl)
                 server.start()
-
-                // injecting fault on a random node 9 in the cluster (lucky number 😆)
-                if(isFaultInjected){
-                    println("Fault injection is enabled!!!")
-                }
             }
 
             activeTasks += instance

@@ -34,9 +34,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SplittableRandom;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.opendc.common.Dispatcher;
@@ -127,6 +130,8 @@ public final class ComputeService implements AutoCloseable {
 
     private final List<ServiceServer> servers = new ArrayList<>();
 
+    private static boolean isFaultInjected;
+
     /**
      * A [HostListener] used to track the active servers.
      */
@@ -204,7 +209,8 @@ public final class ComputeService implements AutoCloseable {
     /**
      * Create a new {@link Builder} instance.
      */
-    public static Builder builder(Dispatcher dispatcher, ComputeScheduler scheduler) {
+    public static Builder builder(Dispatcher dispatcher, ComputeScheduler scheduler, boolean faulty) {
+        isFaultInjected = faulty;
         return new Builder(dispatcher, scheduler);
     }
 
@@ -553,6 +559,16 @@ public final class ComputeService implements AutoCloseable {
 
             if (start) {
                 server.start();
+            }
+
+            // injecting fault on two random nodes - host numbers 3 and 9 in the cluster (lucky numbers, 😆)
+            if(ComputeService.isFaultInjected){
+                //System.out.print("Fault injection is enabled --- ");
+                Set<Host> hosts = service.getHosts().stream()
+                                    .filter(h -> (h.getName().equalsIgnoreCase("host-3") ||
+                                            (h.getName().equalsIgnoreCase("host-9")))) // || h.getName().equalsIgnoreCase("host-3"))
+                                    .collect(Collectors.toSet());
+                hosts.forEach(Host::produceFaultInRandomHost);
             }
 
             return server;
