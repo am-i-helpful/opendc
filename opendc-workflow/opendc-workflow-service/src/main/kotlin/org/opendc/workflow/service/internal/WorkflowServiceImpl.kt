@@ -89,7 +89,7 @@ public class WorkflowServiceImpl(
     /**
      * The task queue.
      */
-    internal val taskQueue: Queue<TaskState>
+    internal var taskQueue: Queue<TaskState>
 
     /**
      * The active jobs in the system.
@@ -158,6 +158,7 @@ public class WorkflowServiceImpl(
 
     private val jobAdmissionPolicy: JobAdmissionPolicy.Logic
     private val taskEligibilityPolicy: TaskEligibilityPolicy.Logic
+    //private val taskOrderPolicy: TaskOrderPolicy
     private lateinit var image: Image
 
     init {
@@ -165,13 +166,15 @@ public class WorkflowServiceImpl(
         this.jobQueue = PriorityQueue(100, jobOrderPolicy(this).thenBy { it.job.uid })
         this.taskEligibilityPolicy = taskEligibilityPolicy(this)
         this.taskQueue = PriorityQueue(1000, taskOrderPolicy(this).thenBy { it.task.uid })
-
+//        this.taskOrderPolicy = taskOrderPolicy
+//        this.taskQueue = PriorityQueue<TaskState>(0)
         scope.launch { image = computeClient.newImage("workflow-runner") }
     }
 
     override suspend fun invoke(job: Job): Unit = suspendCancellableCoroutine { cont ->
         // J1 Incoming Jobs
         val jobInstance = JobState(job, clock.millis(), cont)
+        job.metadata.put("submittedAt", jobInstance.submittedAt)
         val instances = job.tasks.associateWith {
             TaskState(jobInstance, it)
         }
@@ -264,6 +267,7 @@ public class WorkflowServiceImpl(
         }
 
         // T1 Create list of eligible tasks
+        //val eligibleTasks = HashSet<TaskState>()
         val taskIterator = incomingTasks.iterator()
         while (taskIterator.hasNext()) {
             val taskInstance = taskIterator.next()
@@ -318,6 +322,7 @@ public class WorkflowServiceImpl(
             ServerState.RUNNING -> {
                 val task = taskByServer.getValue(server)
                 task.startedAt = clock.millis()
+                task.task.metadata["startedAt"] = task.startedAt
                 _tasksRunning++
                 rootListener.taskStarted(task)
             }
@@ -332,6 +337,7 @@ public class WorkflowServiceImpl(
                 val job = task.job
                 task.state = TaskStatus.FINISHED
                 task.finishedAt = clock.millis()
+                task.task.metadata["finishedAt"] = task.finishedAt
                 job.tasks.remove(task)
                 activeTasks -= task
 
