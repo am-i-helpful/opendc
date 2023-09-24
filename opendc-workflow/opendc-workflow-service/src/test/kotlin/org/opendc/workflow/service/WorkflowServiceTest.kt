@@ -22,8 +22,6 @@
 
 package org.opendc.workflow.service
 
-//import io.opentelemetry.sdk.metrics.internal.export.MetricProducer
-import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -41,7 +39,6 @@ import org.opendc.compute.service.scheduler.weights.VCpuWeigher
 import org.opendc.experiments.compute.registerComputeMonitor
 import org.opendc.experiments.compute.setupComputeService
 import org.opendc.experiments.compute.setupHosts
-//import org.opendc.experiments.compute.telemetry.table.HostTableReader
 import org.opendc.experiments.compute.topology.HostSpec
 import org.opendc.experiments.provisioner.Provisioner
 import org.opendc.experiments.provisioner.ProvisioningContext
@@ -59,11 +56,16 @@ import org.opendc.simulator.compute.power.CpuPowerModels
 import org.opendc.simulator.flow2.mux.FlowMultiplexerFactory
 import org.opendc.simulator.kotlin.runSimulation
 import org.opendc.trace.Trace
+import org.opendc.workflow.api.Job
 import org.opendc.workflow.service.internal.WorkflowServiceImpl
 import org.opendc.workflow.service.scheduler.job.NullJobAdmissionPolicy
 import org.opendc.workflow.service.scheduler.job.SubmissionTimeJobOrderPolicy
+import org.opendc.workflow.service.scheduler.task.AntColonyPolicy
+import org.opendc.workflow.service.scheduler.task.Constants
 import org.opendc.workflow.service.scheduler.task.HEFTPolicy
+import org.opendc.workflow.service.scheduler.task.MinMinPolicy
 import org.opendc.workflow.service.scheduler.task.NullTaskEligibilityPolicy
+import org.opendc.workflow.service.scheduler.task.RandomTaskOrderPolicy
 import org.opendc.workflow.service.scheduler.task.SubmissionTimeTaskOrderPolicy
 import java.io.File
 import java.nio.file.Paths
@@ -90,7 +92,8 @@ internal class WorkflowServiceTest {
                     weighers = listOf(VCpuWeigher(1.0, multiplier = 1.0))
                 )
             }
-            val monitor = ResultingComputeMonitor()
+            val policy = "Standard"
+            val monitor = ResultingComputeMonitor(policy)
             provisioner.runSteps(
                 // Configure the ComputeService that is responsible for mapping virtual machines onto physical hosts
                 setupComputeService(computeService, scheduler, schedulingQuantum = Duration.ofSeconds(1)),
@@ -123,12 +126,8 @@ internal class WorkflowServiceTest {
                 launch { service.replay(timeSource, trace.toJobs()) }
 //                delay(10_000)
                 val impl = (service as WorkflowServiceImpl)
-                println(impl.jobQueue)
+//                println(impl.jobQueue)
             }
-
-            println(
-                "Compute Metrics->" +
-                    "Energy-Usage=${monitor.energyUsage} ")
 
             val metrics = service.getSchedulerStats()
 
@@ -161,7 +160,7 @@ internal class WorkflowServiceTest {
         val memory = List(8) { MemoryUnit(memoryVendor, memoryModel, memorySpeed, memorySize/8) }
         // add storage and network in the machineModel below, maybe
         val machineModel = MachineModel(cpus, memory)
-        val powerModel: CpuPowerModel = CpuPowerModels.linear(350.0, 200.0)
+        val powerModel: CpuPowerModel = CpuPowerModels.cubic(350.0, 200.0)
         return HostSpec(
             UUID(0, nodeUid.toLong()),
             "host-$nodeUid",
@@ -191,7 +190,7 @@ internal class WorkflowServiceTest {
     }
 
     @Test
-    internal fun conductExperiment() = runSimulation {
+    internal fun conductHEFTExperiment() = runSimulation {
         val computeService = "compute.opendc.org"
         val workflowService = "workflow.opendc.org"
 
@@ -204,11 +203,12 @@ internal class WorkflowServiceTest {
             }
             // read global config about environment setup
             val specs : List<HostSpec> = getNodesSpecs()
-            val monitor = ResultingComputeMonitor()
+            val policy = "HEFT"
+            val monitor = ResultingComputeMonitor(policy)
             provisioner.runSteps(
                 // Configure the ComputeService that is responsible for mapping virtual machines onto physical hosts
                 setupComputeService(computeService, scheduler, schedulingQuantum = Duration.ofSeconds(1)),
-                registerComputeMonitor(serviceDomain = "compute.opendc.org", monitor, exportInterval = Duration.ofSeconds(1)),
+                registerComputeMonitor(serviceDomain = "compute.opendc.org", monitor, exportInterval = Duration.ofSeconds(1000)),
                 setupHosts(computeService, specs),
 
                 // Configure the WorkflowService that is responsible for scheduling the workflow tasks onto machines
@@ -224,6 +224,292 @@ internal class WorkflowServiceTest {
                     )
                 )
             )
+
+            val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
+
+            val trace = Trace.open(
+                Paths.get(checkNotNull(WorkflowServiceTest::class.java.getResource("/trace.gwf")).toURI()),
+                format = "gwf"
+            )
+
+            coroutineScope {
+                launch { service.replay(timeSource, trace.toJobs()) }
+//                delay(10_000)
+                val impl = (service as WorkflowServiceImpl)
+//                println(impl.jobQueue)
+            }
+        }
+    }
+
+    @Test
+    internal fun conductRandomExperiment() = runSimulation {
+        val computeService = "compute.opendc.org"
+        val workflowService = "workflow.opendc.org"
+
+        Provisioner(dispatcher, seed = 0L).use { provisioner ->
+            val scheduler: (ProvisioningContext) -> ComputeScheduler = {
+                FilterScheduler(
+                    filters = listOf(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.0)),
+                    weighers = listOf(VCpuWeigher(1.0, multiplier = 1.0))
+                )
+            }
+            // read global config about environment setup
+            val specs : List<HostSpec> = getNodesSpecs()
+            val policy = "Random"
+            val monitor = ResultingComputeMonitor(policy)
+            provisioner.runSteps(
+                // Configure the ComputeService that is responsible for mapping virtual machines onto physical hosts
+                setupComputeService(computeService, scheduler, schedulingQuantum = Duration.ofSeconds(1)),
+                registerComputeMonitor(serviceDomain = "compute.opendc.org", monitor, exportInterval = Duration.ofSeconds(1000)),
+                setupHosts(computeService, specs),
+
+                // Configure the WorkflowService that is responsible for scheduling the workflow tasks onto machines
+                setupWorkflowService(
+                    workflowService,
+                    computeService,
+                    WorkflowSchedulerSpec(
+                        schedulingQuantum = Duration.ofMillis(100),
+                        jobAdmissionPolicy = NullJobAdmissionPolicy,
+                        jobOrderPolicy = SubmissionTimeJobOrderPolicy(),
+                        taskEligibilityPolicy = NullTaskEligibilityPolicy,
+                        taskOrderPolicy = RandomTaskOrderPolicy
+                    )
+                )
+            )
+
+            val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
+
+            val trace = Trace.open(
+                Paths.get(checkNotNull(WorkflowServiceTest::class.java.getResource("/trace.gwf")).toURI()),
+                format = "gwf"
+            )
+
+            coroutineScope {
+                launch { service.replay(timeSource, trace.toJobs()) }
+//                delay(10_000)
+                val impl = (service as WorkflowServiceImpl)
+//                println(impl.jobQueue)
+            }
+        }
+    }
+
+    @Test
+    internal fun conductMinMinExperiment() = runSimulation {
+        val computeService = "compute.opendc.org"
+        val workflowService = "workflow.opendc.org"
+
+        Provisioner(dispatcher, seed = 0L).use { provisioner ->
+            val scheduler: (ProvisioningContext) -> ComputeScheduler = {
+                FilterScheduler(
+                    filters = listOf(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.0)),
+                    weighers = listOf(VCpuWeigher(1.0, multiplier = 1.0))
+                )
+            }
+            // read global config about environment setup
+            val specs : List<HostSpec> = getNodesSpecs()
+            val policy = "MinMin"
+            val monitor = ResultingComputeMonitor(policy)
+            provisioner.runSteps(
+                // Configure the ComputeService that is responsible for mapping virtual machines onto physical hosts
+                setupComputeService(computeService, scheduler, schedulingQuantum = Duration.ofSeconds(1)),
+                registerComputeMonitor(serviceDomain = "compute.opendc.org", monitor, exportInterval = Duration.ofSeconds(1000)),
+                setupHosts(computeService, specs),
+
+                // Configure the WorkflowService that is responsible for scheduling the workflow tasks onto machines
+                setupWorkflowService(
+                    workflowService,
+                    computeService,
+                    WorkflowSchedulerSpec(
+                        schedulingQuantum = Duration.ofMillis(100),
+                        jobAdmissionPolicy = NullJobAdmissionPolicy,
+                        jobOrderPolicy = SubmissionTimeJobOrderPolicy(),
+                        taskEligibilityPolicy = NullTaskEligibilityPolicy,
+                        taskOrderPolicy = MinMinPolicy(HashSet(specs))
+                    )
+                )
+            )
+
+            val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
+
+            val trace = Trace.open(
+                Paths.get(checkNotNull(WorkflowServiceTest::class.java.getResource("/trace.gwf")).toURI()),
+                format = "gwf"
+            )
+
+            coroutineScope {
+                launch { service.replay(timeSource, trace.toJobs()) }
+//                delay(10_000)
+                val impl = (service as WorkflowServiceImpl)
+//                println(impl.jobQueue)
+            }
+        }
+    }
+
+    @Test
+    internal fun conductAntColonyExperiment() = runSimulation {
+        val computeService = "compute.opendc.org"
+        val workflowService = "workflow.opendc.org"
+
+        Provisioner(dispatcher, seed = 0L).use { provisioner ->
+            val scheduler: (ProvisioningContext) -> ComputeScheduler = {
+                FilterScheduler(
+                    filters = listOf(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.0)),
+                    weighers = listOf(VCpuWeigher(1.0, multiplier = 1.0))
+                )
+            }
+            // read global config about environment setup
+            val specs : List<HostSpec> = getNodesSpecs()
+            val policy = "MinMin"
+            val monitor = ResultingComputeMonitor(policy)
+            // Parameters were first taken from the Tawfeek et al. paper and later adjusted using trial-and-error
+            val acoConstants = Constants(numIterations = 10, numAnts = 42, alpha = 1.0, beta = 3.0, gamma = 1.0,
+                initialPheromone = 5.0, rho = 0.1)
+            provisioner.runSteps(
+                // Configure the ComputeService that is responsible for mapping virtual machines onto physical hosts
+                setupComputeService(computeService, scheduler, schedulingQuantum = Duration.ofSeconds(1)),
+                registerComputeMonitor(serviceDomain = "compute.opendc.org", monitor, exportInterval = Duration.ofSeconds(1000)),
+                setupHosts(computeService, specs),
+
+                // Configure the WorkflowService that is responsible for scheduling the workflow tasks onto machines
+                setupWorkflowService(
+                    workflowService,
+                    computeService,
+                    WorkflowSchedulerSpec(
+                        schedulingQuantum = Duration.ofMillis(100),
+                        jobAdmissionPolicy = NullJobAdmissionPolicy,
+                        jobOrderPolicy = SubmissionTimeJobOrderPolicy(),
+                        taskEligibilityPolicy = NullTaskEligibilityPolicy,
+                        taskOrderPolicy = AntColonyPolicy(specs, acoConstants)
+                    )
+                )
+            )
+
+            val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
+
+            val trace = Trace.open(
+                Paths.get(checkNotNull(WorkflowServiceTest::class.java.getResource("/trace.gwf")).toURI()),
+                format = "gwf"
+            )
+
+            coroutineScope {
+                launch { service.replay(timeSource, trace.toJobs()) }
+//                delay(10_000)
+                val impl = (service as WorkflowServiceImpl)
+//                println(impl.jobQueue)
+            }
+        }
+    }
+
+    @Test
+    fun testTraceWithFaultsEnabled() = runSimulation {
+        val computeService = "compute.opendc.org"
+        val workflowService = "workflow.opendc.org"
+        val isFaultInjected: Boolean = true
+        Provisioner(dispatcher, seed = 0L).use { provisioner ->
+            val scheduler: (ProvisioningContext) -> ComputeScheduler = {
+                FilterScheduler(
+                    filters = listOf(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.0)),
+                    weighers = listOf(VCpuWeigher(1.0, multiplier = 1.0))
+                )
+            }
+            val policy = "Standard-Anomaly"
+            val monitor = ResultingComputeMonitor(policy)
+            provisioner.runSteps(
+                // Configure the ComputeService that is responsible for mapping virtual machines onto physical hosts
+                setupComputeService(computeService, scheduler, schedulingQuantum = Duration.ofSeconds(1), isFaultInjected = isFaultInjected),
+                registerComputeMonitor(serviceDomain = "compute.opendc.org", monitor, exportInterval = Duration.ofSeconds(1000)),
+                setupHosts(computeService, getNodesSpecs(), isFaultInjected = isFaultInjected),
+
+                // Configure the WorkflowService that is responsible for scheduling the workflow tasks onto machines
+                setupWorkflowService(
+                    workflowService,
+                    computeService,
+                    WorkflowSchedulerSpec(
+                        schedulingQuantum = Duration.ofMillis(100),
+                        jobAdmissionPolicy = NullJobAdmissionPolicy,
+                        jobOrderPolicy = SubmissionTimeJobOrderPolicy(),
+                        taskEligibilityPolicy = NullTaskEligibilityPolicy,
+                        taskOrderPolicy = SubmissionTimeTaskOrderPolicy()
+                    )
+                )
+            )
+
+            val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
+            // enabling fault injectiom to true
+            service.isFaultInjected = true
+            val trace = Trace.open(
+                Paths.get(checkNotNull(WorkflowServiceTest::class.java.getResource("/trace.gwf")).toURI()),
+                format = "gwf"
+            )
+            //service.replay(timeSource, trace.toJobs())
+
+            coroutineScope {
+                launch { service.replay(timeSource, trace.toJobs()) }
+//                delay(10_000)
+                val impl = (service as WorkflowServiceImpl)
+//                println(impl.jobQueue)
+            }
+
+            //val metrics = service.getSchedulerStats()
+        }
+    }
+
+    @Test
+    fun testTraceWithoutFaultsEnabled() = runSimulation {
+        val computeService = "compute.opendc.org"
+        val workflowService = "workflow.opendc.org"
+        val isFaultInjected: Boolean = false
+        Provisioner(dispatcher, seed = 0L).use { provisioner ->
+            val scheduler: (ProvisioningContext) -> ComputeScheduler = {
+                FilterScheduler(
+                    filters = listOf(ComputeFilter(), VCpuFilter(1.0), RamFilter(1.0)),
+                    weighers = listOf(VCpuWeigher(1.0, multiplier = 1.0))
+                )
+            }
+            val policy = "Standard-NonAnomaly"
+            val monitor = ResultingComputeMonitor(policy)
+            provisioner.runSteps(
+                // Configure the ComputeService that is responsible for mapping virtual machines onto physical hosts
+                setupComputeService(computeService, scheduler, schedulingQuantum = Duration.ofSeconds(1), isFaultInjected = isFaultInjected),
+                registerComputeMonitor(serviceDomain = "compute.opendc.org", monitor, exportInterval = Duration.ofSeconds(1000)),
+                setupHosts(computeService, getNodesSpecs(), isFaultInjected = isFaultInjected),
+
+                // Configure the WorkflowService that is responsible for scheduling the workflow tasks onto machines
+                setupWorkflowService(
+                    workflowService,
+                    computeService,
+                    WorkflowSchedulerSpec(
+                        schedulingQuantum = Duration.ofMillis(100),
+                        jobAdmissionPolicy = NullJobAdmissionPolicy,
+                        jobOrderPolicy = SubmissionTimeJobOrderPolicy(),
+                        taskEligibilityPolicy = NullTaskEligibilityPolicy,
+                        taskOrderPolicy = SubmissionTimeTaskOrderPolicy()
+                    )
+                )
+            )
+
+            val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
+            // enabling fault injectiom to true
+            service.isFaultInjected = true
+            val trace = Trace.open(
+                Paths.get(checkNotNull(
+                    WorkflowServiceTest::class.java.getResource
+                        ("/trace.gwf")).toURI()),
+                format = "gwf"
+            )
+            //service.replay(timeSource, trace.toJobs())
+//            val jobs: List<Job> = trace.toJobs()
+//            for(job in jobs){
+//                println(job.name)
+//            }
+            coroutineScope {
+                launch { service.replay(timeSource, trace.toJobs()) }
+//                delay(10_000)
+                val impl = (service as WorkflowServiceImpl)
+                println("Job Queue - " + impl.jobQueue)
+            }
+
+            //val metrics = service.getSchedulerStats()
         }
     }
 }

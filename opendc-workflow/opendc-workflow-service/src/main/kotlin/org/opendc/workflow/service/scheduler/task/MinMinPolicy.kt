@@ -2,9 +2,9 @@ package org.opendc.workflow.service.scheduler.task
 
 import org.opendc.experiments.compute.topology.HostSpec
 import org.opendc.workflow.service.internal.TaskState
-import org.opendc.workflow.service.internal.WorkflowServiceImpl
 import org.opendc.simulator.compute.model.ProcessingUnit
 import org.opendc.workflow.api.WORKFLOW_TASK_CORES
+import org.opendc.workflow.service.internal.WorkflowServiceImpl
 import java.util.*
 
 private data class ExecutionSpec(val task: TaskState, val host: HostSpec, val selectedCpus: List<ProcessingUnit>, val completionTime: Double)
