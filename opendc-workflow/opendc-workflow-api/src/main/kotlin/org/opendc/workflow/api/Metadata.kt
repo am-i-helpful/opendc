@@ -31,3 +31,9 @@ public const val WORKFLOW_TASK_DEADLINE: String = "workflow:task:deadline"
  * Meta-data key for the number of cores needed for a task.
  */
 public const val WORKFLOW_TASK_CORES: String = "workflow:task:cores"
+
+
+/**
+ * Meta-data key for the execution length of a task.
+ */
+public const val WORKFLOW_TASK_EXECUTION: String = "workflow:task:execution"
