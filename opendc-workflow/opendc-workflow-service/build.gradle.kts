@@ -30,14 +30,24 @@ plugins {
 dependencies {
     api(projects.opendcWorkflow.opendcWorkflowApi)
     api(projects.opendcCompute.opendcComputeApi)
+    implementation(platform(libs.opentelemetry.bom))
     implementation(projects.opendcCommon)
     implementation(libs.kotlin.logging)
+    implementation(projects.opendcExperiments.opendcExperimentsCompute)
+
+    implementation(libs.opentelemetry.api)
+    implementation(libs.opentelemetry.extension.kotlin)
+    implementation(libs.kafka.client)
 
     testImplementation(projects.opendcSimulator.opendcSimulatorCore)
     testImplementation(projects.opendcExperiments.opendcExperimentsCompute)
     testImplementation(projects.opendcExperiments.opendcExperimentsWorkflow)
     testImplementation(projects.opendcTrace.opendcTraceApi)
+    testImplementation(libs.opentelemetry.sdk)
+    testImplementation(libs.opentelemetry.sdk.testing)
+    testImplementation(libs.jackson.module.kotlin)
     testRuntimeOnly(projects.opendcTrace.opendcTraceGwf)
+    testRuntimeOnly(projects.opendcTrace.opendcTraceWtf)
     testRuntimeOnly(libs.log4j.core)
     testRuntimeOnly(libs.log4j.slf4j)
 }

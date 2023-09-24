@@ -9,12 +9,13 @@ hypersistence-utils = "3.2.0"
 jackson = "2.15.2"
 jandex-gradle = "1.1.0"
 java = "17"
+javax-cdi-api = "2.0.SP1"
 jline = "3.23.0"
 jmh-gradle = "0.7.0"
 jakarta-validation = "2.0.2"
 junit-jupiter = "5.9.1"
 kafka-client = "3.3.1"
-kotlin = "1.8.10"
+kotlin = "1.9.10"
 kotlin-logging = "3.0.5"
 kotlinx-coroutines = "1.6.4"
 log4j = "2.20.0"
@@ -25,7 +26,7 @@ node = "18.15.0"
 opentelemetry = "1.29.0"
 parquet = "1.12.3"
 progressbar = "0.9.5"
-quarkus = "2.16.5.Final"
+quarkus = "3.4.1" # ""2.16.5.Final"
 sentry = "6.16.0"
 slf4j = "2.0.7"
 spotless = "6.12.0"
@@ -111,6 +112,7 @@ hadoop-mapreduce-client-core = { module = "org.apache.hadoop:hadoop-mapreduce-cl
 commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "commons-math3" }
 microprofile-openapi-api = { module = "org.eclipse.microprofile.openapi:microprofile-openapi-api", version.ref = "microprofile-openapi" }
 microprofile-config = { module = "org.eclipse.microprofile.config:microprofile-config-api", version.ref = "microprofile-config" }
+javax-enterprise-cdi-api = { module = "javax.enterprise:cdi-api", version.ref = "javax-cdi-api" }
 
 # Other (Build)
 dokka-gradle = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
@@ -125,3 +127,6 @@ opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api" }
 opentelemetry-extension-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk" }
 opentelemetry-sdk-testing = { module = "io.opentelemetry:opentelemetry-sdk-testing" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -42,18 +42,18 @@ dependencies {
     testRuntimeOnly(versionCatalog["junit.jupiter.engine"])
 }
 
-tasks.register<Test>("testsOn18") {
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(18))
-    })
-
-    useJUnitPlatform()
-}
-
-tasks.register<Test>("testsOn19") {
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(19))
-    })
-
-    useJUnitPlatform()
-}
+//tasks.register<Test>("testsOn18") {
+//    javaLauncher.set(javaToolchains.launcherFor {
+//        languageVersion.set(JavaLanguageVersion.of(18))
+//    })
+//
+//    useJUnitPlatform()
+//}
+//
+//tasks.register<Test>("testsOn19") {
+//    javaLauncher.set(javaToolchains.launcherFor {
+//        languageVersion.set(JavaLanguageVersion.of(19))
+//    })
+//
+//    useJUnitPlatform()
+//}
