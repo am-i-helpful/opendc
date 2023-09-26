@@ -134,4 +134,6 @@ public interface Host {
      * @throws IllegalArgumentException if the server is not present on the host.
      */
     GuestCpuStats getCpuStats(Server server);
+
+    public void produceFaultInRandomHost();
 }

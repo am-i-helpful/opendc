@@ -66,7 +66,7 @@ public fun Trace.toJobs(): List<Job> {
             val workflow = jobs.computeIfAbsent(workflowId) { id -> Job(UUID(0L, id), "<unnamed>", HashSet(), HashMap()) }
 
             val id = reader.getString(TASK_ID)!!.toLong()
-            val grantedCpus = if (reader.resolve(TASK_ALLOC_NCPUS) != 0) {
+            val grantedCpus = if (reader.resolve(TASK_ALLOC_NCPUS) > 0) {
                 reader.getInt(TASK_ALLOC_NCPUS)
             } else {
                 reader.getInt(TASK_REQ_NCPUS)
@@ -79,10 +79,11 @@ public fun Trace.toJobs(): List<Job> {
                 UUID(0L, id),
                 "<unnamed>",
                 HashSet(),
-                mapOf(
+                mutableMapOf(
                     "workload" to workload,
                     WORKFLOW_TASK_CORES to grantedCpus,
-                    WORKFLOW_TASK_DEADLINE to runtime.toMillis()
+                    WORKFLOW_TASK_DEADLINE to runtime.toMillis(),
+                    "cpu-cycles" to flops
                 )
             )
 

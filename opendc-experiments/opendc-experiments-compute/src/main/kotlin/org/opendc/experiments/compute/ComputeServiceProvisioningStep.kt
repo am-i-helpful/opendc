@@ -38,10 +38,11 @@ import java.time.Duration
 public class ComputeServiceProvisioningStep internal constructor(
     private val serviceDomain: String,
     private val scheduler: (ProvisioningContext) -> ComputeScheduler,
-    private val schedulingQuantum: Duration
+    private val schedulingQuantum: Duration,
+    private val isFaultInjected: Boolean
 ) : ProvisioningStep {
     override fun apply(ctx: ProvisioningContext): AutoCloseable {
-        val service = ComputeService.builder(ctx.dispatcher, scheduler(ctx))
+        val service = ComputeService.builder(ctx.dispatcher, scheduler(ctx), isFaultInjected)
             .withQuantum(schedulingQuantum)
             .build()
         ctx.registry.register(serviceDomain, ComputeService::class.java, service)

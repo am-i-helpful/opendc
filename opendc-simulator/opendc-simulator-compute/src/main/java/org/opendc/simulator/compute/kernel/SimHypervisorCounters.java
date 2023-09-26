@@ -50,4 +50,6 @@ public interface SimHypervisorCounters {
      * Synchronize the counter values.
      */
     void sync();
+
+    void addFaultyCpuUsageForExperiments();
 }

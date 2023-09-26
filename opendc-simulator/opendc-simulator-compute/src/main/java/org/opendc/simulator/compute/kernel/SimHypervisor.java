@@ -879,6 +879,14 @@ public final class SimHypervisor implements SimWorkload {
                 context.updateCounters();
             }
         }
+
+        @Override
+        public void addFaultyCpuUsageForExperiments(){
+            cpuActiveTime += 10;
+            cpuIdleTime -= 10;
+            cpuLostTime += 10;
+            cpuStealTime -= 10;
+        }
     }
 
     /**
@@ -922,6 +930,14 @@ public final class SimHypervisor implements SimWorkload {
             if (context != null) {
                 context.updateCounters();
             }
+        }
+
+        @Override
+        public void addFaultyCpuUsageForExperiments(){
+            cpuActiveTime += 20;
+            cpuIdleTime -= 10;
+            cpuLostTime += 20;
+            cpuStealTime -= 5;
         }
     }
 }

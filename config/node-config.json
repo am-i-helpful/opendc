@@ -1,0 +1,24 @@
+{
+    "total-nodes-count": 34,
+    "node-built": "Lenovo",
+    "cpu-config": {
+        "cpu-vendor": "AMD",
+        "cpu-model": "amd64",
+        "cpu-architecture": "EPYC-2 (Rome) 7402P",
+        "cpu-cores": 24,
+        "cpu-base-frequency-mhz": 2800.0,
+        "cpu-max-frequency-mhz": 3350.0
+    },
+    "memory-config": {
+        "memory-vendor": "Samsung",
+        "memory-model": "Unknown",
+        "memory-speed": 3200.0,
+        "memory-size-mb": 128000
+    },
+    "node-storage-capacity-gb": 1800,
+    "node-interconnect-bandwidth": "100 Gbit/s InfiniBand",
+    "gpu-config": {
+        "gpu-model": "NVIDIA RTX A4000",
+        "gpu-count": 32
+    }
+}

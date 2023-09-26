@@ -53,7 +53,8 @@ public class WorkflowServiceProvisioningStep internal constructor(
             jobAdmissionPolicy = scheduler.jobAdmissionPolicy,
             jobOrderPolicy = scheduler.jobOrderPolicy,
             taskEligibilityPolicy = scheduler.taskEligibilityPolicy,
-            taskOrderPolicy = scheduler.taskOrderPolicy
+            taskOrderPolicy = scheduler.taskOrderPolicy,
+            isFaultInjected = false
         )
         ctx.registry.register(serviceDomain, WorkflowService::class.java, service)
 

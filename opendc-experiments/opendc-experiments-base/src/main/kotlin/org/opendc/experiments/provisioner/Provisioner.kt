@@ -39,7 +39,7 @@ import java.util.SplittableRandom
  * @param dispatcher The [Dispatcher] implementation for scheduling future tasks.
  * @param seed A seed for initializing the randomness of the environment.
  */
-public class Provisioner(dispatcher: Dispatcher, seed: Long) : AutoCloseable {
+public class Provisioner(dispatcher: Dispatcher, seed: Long, isFaultInjected: Boolean = false) : AutoCloseable {
     /**
      * Implementation of [ProvisioningContext].
      */
@@ -50,6 +50,7 @@ public class Provisioner(dispatcher: Dispatcher, seed: Long) : AutoCloseable {
 
         override fun toString(): String = "Provisioner.ProvisioningContext"
     }
+    // private val isFaultInjected: Boolean = isFaultInjected
 
     /**
      * The stack of handles to run during the clean-up process.

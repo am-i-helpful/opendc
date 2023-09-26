@@ -68,4 +68,6 @@ public abstract class SimPsu extends SimPowerInlet {
     void setCpuFrequency(InPort port, double capacity) {
         port.pull((float) capacity);
     }
+
+    public abstract void setFaultyPowerUsageForExperiment();
 }

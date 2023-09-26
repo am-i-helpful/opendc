@@ -38,7 +38,9 @@ import org.opendc.compute.simulator.internal.Guest
 import org.opendc.compute.simulator.internal.GuestListener
 import org.opendc.simulator.compute.SimBareMetalMachine
 import org.opendc.simulator.compute.SimMachineContext
+import org.opendc.simulator.compute.SimPsu
 import org.opendc.simulator.compute.kernel.SimHypervisor
+import org.opendc.simulator.compute.kernel.SimHypervisorCounters
 import org.opendc.simulator.compute.model.MachineModel
 import org.opendc.simulator.compute.model.MemoryUnit
 import org.opendc.simulator.compute.model.ProcessingNode
@@ -67,7 +69,7 @@ import java.util.function.Supplier
 public class SimHost(
     private val uid: UUID,
     private val name: String,
-    private val meta: Map<String, Any>,
+    private var meta: Map<String, Any>,
     private val clock: InstantSource,
     private val machine: SimBareMetalMachine,
     private val hypervisor: SimHypervisor,
@@ -284,6 +286,14 @@ public class SimHost(
         updateUptime()
 
         launch()
+    }
+
+    public override fun produceFaultInRandomHost(){
+        // println("Let's see faults for host-9!")
+        val counters: SimHypervisorCounters = hypervisor.counters
+        counters.addFaultyCpuUsageForExperiments()
+        machine.psu.setFaultyPowerUsageForExperiment()
+        //val machine: SimBareMetalMachine = machine.psu.setFaultyPowerUsageForExperiment()
     }
 
     /**

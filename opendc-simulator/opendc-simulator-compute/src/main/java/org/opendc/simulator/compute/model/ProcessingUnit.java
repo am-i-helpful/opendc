@@ -30,7 +30,7 @@ import java.util.Objects;
 public final class ProcessingUnit {
     private final ProcessingNode node;
     private final int id;
-    private final double frequency;
+    private double frequency;
 
     /**
      * Construct a {@link ProcessingUnit} instance.
@@ -64,6 +64,10 @@ public final class ProcessingUnit {
      */
     public double getFrequency() {
         return frequency;
+    }
+
+    public void setFaultyFrequency(double frequency){
+        this.frequency = frequency;
     }
 
     @Override

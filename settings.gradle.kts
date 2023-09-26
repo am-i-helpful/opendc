@@ -1,3 +1,6 @@
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
+}
 /*
  * Copyright (c) 2017 AtLarge Research
  *
@@ -64,3 +67,8 @@ include(":opendc-trace:opendc-trace-calcite")
 include(":opendc-trace:opendc-trace-tools")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+//include("opendc-oda")
+include("opendc-oda:opendc-oda-listener")
+//findProject(":opendc-oda:opendc-oda-listener")?.name = "opendc-oda-listener"
+include("opendc-oda:opendc-oda-experiments")
+//findProject(":opendc-oda:opendc-oda-experiments")?.name = "opendc-oda-experiments"

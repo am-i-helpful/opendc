@@ -6,14 +6,16 @@ dokka = "1.8.10"
 gradle-node = "3.5.1"
 hadoop = "3.3.5"
 hypersistence-utils = "3.2.0"
-jackson = "2.14.2"
+jackson = "2.15.2"
 jandex-gradle = "1.1.0"
 java = "17"
+javax-cdi-api = "2.0.SP1"
 jline = "3.23.0"
 jmh-gradle = "0.7.0"
 jakarta-validation = "2.0.2"
 junit-jupiter = "5.9.1"
-kotlin = "1.8.10"
+kafka-client = "3.3.1"
+kotlin = "1.9.10"
 kotlin-logging = "3.0.5"
 kotlinx-coroutines = "1.6.4"
 log4j = "2.20.0"
@@ -21,9 +23,10 @@ microprofile-openapi = "3.0"
 microprofile-config = "3.0.1"
 mockk = "1.13.4"
 node = "18.15.0"
+opentelemetry = "1.29.0"
 parquet = "1.12.3"
 progressbar = "0.9.5"
-quarkus = "2.16.5.Final"
+quarkus = "2.16.5.Final" # "3.4.1" # "
 sentry = "6.16.0"
 slf4j = "2.0.7"
 spotless = "6.12.0"
@@ -44,6 +47,8 @@ log4j-slf4j = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.r
 sentry-log4j2 = { module = "io.sentry:sentry-log4j2", version.ref = "sentry" }
 
 # Testing
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit-jupiter" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
@@ -61,6 +66,9 @@ jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 jackson-dataformat-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-csv", version.ref = "jackson" }
 parquet = { module = "org.apache.parquet:parquet-hadoop", version.ref = "parquet" }
+
+# Kafka
+kafka-client = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka-client" }
 
 # Quarkus
 quarkus-gradle-application = { module = "io.quarkus:gradle-application-plugin", version.ref = "quarkus" }
@@ -104,6 +112,7 @@ hadoop-mapreduce-client-core = { module = "org.apache.hadoop:hadoop-mapreduce-cl
 commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "commons-math3" }
 microprofile-openapi-api = { module = "org.eclipse.microprofile.openapi:microprofile-openapi-api", version.ref = "microprofile-openapi" }
 microprofile-config = { module = "org.eclipse.microprofile.config:microprofile-config-api", version.ref = "microprofile-config" }
+javax-enterprise-cdi-api = { module = "javax.enterprise:cdi-api", version.ref = "javax-cdi-api" }
 
 # Other (Build)
 dokka-gradle = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
@@ -111,3 +120,13 @@ gradle-node = { module = "com.github.node-gradle:gradle-node-plugin", version.re
 jandex-gradle = { module = "org.kordamp.gradle:jandex-gradle-plugin", version.ref = "jandex-gradle" }
 jmh-gradle = { module = "me.champeau.jmh:jmh-gradle-plugin", version.ref = "jmh-gradle" }
 spotless-gradle = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+
+# Telemetry
+opentelemetry-bom = { module = "io.opentelemetry:opentelemetry-bom", version.ref = "opentelemetry" }
+opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api" }
+opentelemetry-extension-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin" }
+opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk" }
+opentelemetry-sdk-testing = { module = "io.opentelemetry:opentelemetry-sdk-testing" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

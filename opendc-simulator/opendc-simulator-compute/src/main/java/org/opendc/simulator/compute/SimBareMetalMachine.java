@@ -253,7 +253,7 @@ public final class SimBareMetalMachine extends SimAbstractMachine {
      */
     private static final class Cpu implements SimProcessingUnit {
         private final SimPsu psu;
-        private final ProcessingUnit model;
+        public final ProcessingUnit model;
         private final InPort port;
 
         private Cpu(SimPsu psu, ProcessingUnit model, int id) {

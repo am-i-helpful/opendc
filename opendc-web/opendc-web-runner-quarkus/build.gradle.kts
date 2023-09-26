@@ -42,6 +42,8 @@ dependencies {
 
     implementation(platform(libs.quarkus.bom))
     implementation(libs.quarkus.core.runtime)
+    implementation(libs.javax.enterprise.cdi.api)
+
 }
 
 evaluationDependsOn(projects.opendcWeb.opendcWebRunnerQuarkusDeployment.dependencyProject.path)
