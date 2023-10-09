@@ -62,8 +62,9 @@ class ResultingComputeMonitor (policyName: String) : ComputeMonitor {
             "HEFT" -> policy_id = 2
             "Random" -> policy_id = 3
             "MinMin" -> policy_id = 4
-            "Standard-Anomaly" -> policy_id = 5
-            "Standard-NonAnomaly" -> policy_id = 6
+            "AntColony" -> policy_id = 5
+            "Standard-Anomaly" -> policy_id = 6
+            "Standard-NonAnomaly" -> policy_id = 7
             else -> { // Note the block
                 policy_id = 0
             }

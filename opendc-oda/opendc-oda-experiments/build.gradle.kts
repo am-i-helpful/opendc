@@ -1,13 +1,13 @@
-import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+//import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
 plugins {
     id("java")
     kotlin("jvm")
-    application
+//    application
 }
 
-group = "org.opendc"
-version = "3.0-SNAPSHOT"
+//group = "org.opendc"
+//version = "3.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -17,15 +17,16 @@ sourceSets {
     main {
         java.srcDir("src/main/java")
         kotlin.srcDir("src/main/kotlin")
+        resources.srcDirs("src/main/resources")
     }
     test {
         java.srcDir("test")
     }
 }
 
-application {
-    mainClass.set("org.opendc.oda.experimentrunner.SchedulingAlgorithmComparatorExperiment")
-}
+//application {
+//    mainClass.set("org.opendc.oda.experimentrunner.SchedulingAlgorithmComparatorExperiment")
+//}
 
 dependencies {
     implementation(libs.kotlin.gradle)
@@ -55,15 +56,15 @@ dependencies {
 //    implementation(project(mapOf("path" to ":opendc-workflow:opendc-workflow-service")))
 //    implementation(project(mapOf("path" to ":opendc-trace:opendc-trace-api")))
     runtimeOnly(projects.opendcTrace.opendcTraceWtf)
-    testImplementation(projects.opendcTrace.opendcTraceApi)
-    testRuntimeOnly(projects.opendcTrace.opendcTraceWtf)
-    testRuntimeOnly(libs.log4j.core)
-    testRuntimeOnly(libs.log4j.slf4j)
+//    testImplementation(projects.opendcTrace.opendcTraceApi)
+//    testRuntimeOnly(projects.opendcTrace.opendcTraceWtf)
+//    testRuntimeOnly(libs.log4j.core)
+//    testRuntimeOnly(libs.log4j.slf4j)
 }
 //
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
+//tasks.withType<Test> {
+//    useJUnitPlatform()
+//}
 //kotlin {
 //    jvmToolchain(17)
 //}

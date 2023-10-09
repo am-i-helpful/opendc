@@ -66,10 +66,6 @@ public final class ProcessingUnit {
         return frequency;
     }
 
-    public void setFaultyFrequency(double frequency){
-        this.frequency = frequency;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

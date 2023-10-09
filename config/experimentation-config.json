@@ -1,0 +1,5 @@
+{
+    "kafka-topic": "test",
+    "metric-export-interval": 30,
+    "selected-scheduling-algorithm": "FIFA, HEFT, Random"
+}
