@@ -359,7 +359,7 @@ internal class WorkflowServiceTest {
             }
             // read global config about environment setup
             val specs : List<HostSpec> = getNodesSpecs()
-            val policy = "MinMin"
+            val policy = "AntColony"
             val monitor = ResultingComputeMonitor(policy)
             // Parameters were first taken from the Tawfeek et al. paper and later adjusted using trial-and-error
             val acoConstants = Constants(numIterations = 10, numAnts = 42, alpha = 1.0, beta = 3.0, gamma = 1.0,
@@ -385,9 +385,10 @@ internal class WorkflowServiceTest {
             )
 
             val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
-
+            val xyz = WorkflowServiceTest::class.java.getResource("/trace.gwf")
+            println("Trace file resource - "+xyz)
             val trace = Trace.open(
-                Paths.get(checkNotNull(WorkflowServiceTest::class.java.getResource("/trace.gwf")).toURI()),
+                Paths.get(checkNotNull(xyz).toURI()),
                 format = "gwf"
             )
 
@@ -490,12 +491,12 @@ internal class WorkflowServiceTest {
 
             val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
             // enabling fault injectiom to true
-            service.isFaultInjected = true
+            service.isFaultInjected = isFaultInjected
             val trace = Trace.open(
                 Paths.get(checkNotNull(
                     WorkflowServiceTest::class.java.getResource
-                        ("/trace.gwf")).toURI()),
-                format = "gwf"
+                        ("/askalon_new_ee24_parquet")).toURI()),
+                format = "wtf"
             )
             //service.replay(timeSource, trace.toJobs())
 //            val jobs: List<Job> = trace.toJobs()

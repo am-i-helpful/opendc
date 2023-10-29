@@ -1,19 +1,13 @@
 package org.opendc.oda.experimentrunner;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
-public class SchedulingAlgorithmComparatorExperimentRunner {
+public class NodeAnomalyIdentifierExperimentRunner {
     public String runExperiment() throws ExecutionException, InterruptedException {
 //        ExecutorService executorService = Executors.newSingleThreadExecutor();
 //        Callable<String> callable = () -> {
             try{
-                SchedulingAlgorithmComparatorExperiment exp = new SchedulingAlgorithmComparatorExperiment();
+                NodeAnomalyIdentifierExperiment exp = new NodeAnomalyIdentifierExperiment();
                 exp.triggerExperiment();
                 return "SUCCESS";
             }
@@ -21,7 +15,9 @@ public class SchedulingAlgorithmComparatorExperimentRunner {
                 ex.printStackTrace();
                 return "FAILURE";
             }
+
 //        };
+
 //        Future<String> future = executorService.submit(callable);
 //        return future.get();
     }

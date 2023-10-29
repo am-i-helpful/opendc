@@ -58,24 +58,12 @@ class NodeAnomalyIdentifierExperiment {
         for(percentage in percentages)
         {
             for (isAnomalousExperiment in anomalousExperimentalConditions){
+                println("--------------------Experiment started for ${traceFile} - ${policy} - ${percentage}----------------------")
                 conductAnomalyRelatedExperiment(traceFile, policy, percentage, isAnomalousExperiment)
+                println("--------------------Experiment done for ${traceFile} - ${policy} - ${percentage}----------------------")
             }
         }
     }
-
-    // used https://stackoverflow.com/questions/45315666/converting-callablet-java-method-to-kotlin for Callable in Kotlin
-//    private fun <T> createCallable(task: Callable<T>): Callable<T> {
-//        return object : Callable<T> {
-//            override fun call(): T  {
-//                try {
-//                    return task.call()
-//                } catch (e: Exception) {
-//                    //handle(e)
-//                    throw e
-//                }
-//            }
-//        }
-//    }
 
     private fun createHostSpec(nodeUid: Int, cpuVendor: String, cpuModel: String, cpuArch: String, cpuCoreCount: Int,
                                cpuMaxFrequency: Double, memoryVendor: String, memoryModel: String, memorySpeed: Double, memorySize: Long): HostSpec {
@@ -150,8 +138,11 @@ class NodeAnomalyIdentifierExperiment {
 
             val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
             service.isFaultInjected = isAnomalousExperiment
+            val projectDirAbsolutePath = Paths.get("opendc-oda","opendc-oda-experiments").toAbsolutePath().toString()
+            val traceResourcesPath = Paths.get(projectDirAbsolutePath, "/src/main/resources/$traceFile")
             val trace = Trace.open(
-                Paths.get(checkNotNull(NodeAnomalyIdentifierExperiment::class.java.getResource(traceFile)).toURI()),
+//                Paths.get(checkNotNull(NodeAnomalyIdentifierExperiment::class.java.getResource(traceFile)).toURI()),
+                traceResourcesPath,
                 format = "wtf" // for Parquet files
             )
             coroutineScope {

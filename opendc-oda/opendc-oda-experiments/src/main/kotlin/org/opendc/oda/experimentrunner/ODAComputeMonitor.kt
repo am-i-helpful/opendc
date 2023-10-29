@@ -116,7 +116,7 @@ data class MonitoringMetrics (
     var cpuIdleTime: Long,
     var cpuActiveTime : Long,
     var cpuLostTime: Long,
-    var powerTotal: Double,
+    var energyUsage: Double,
     var uptime: Long,
     var serverId: Int,
     var timestamp: Long,

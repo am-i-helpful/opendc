@@ -1,15 +1,17 @@
+//import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+
 plugins {
     id("java")
     `kotlin-library-conventions`
     application
 }
 
-group = "org.opendc"
-version = "3.0-SNAPSHOT"
+//group = "org.opendc"
+//version = "3.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
+//repositories {
+//    mavenCentral()
+//}
 
 sourceSets {
     main {
@@ -34,9 +36,9 @@ dependencies {
     //implementation(kotlin("stdlib-jdk8"))
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
+//tasks.test {
+//    useJUnitPlatform()
+//}
 //kotlin {
 //    jvmToolchain(17)
 //}

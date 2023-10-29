@@ -40,6 +40,7 @@ import org.opendc.workflow.service.scheduler.task.RandomTaskOrderPolicy
 import org.opendc.workflow.service.scheduler.task.SubmissionTimeTaskOrderPolicy
 import org.opendc.workflow.service.scheduler.task.TaskOrderPolicy
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Duration
 import java.util.UUID
@@ -53,32 +54,19 @@ fun main() {
 public class SchedulingAlgorithmComparatorExperiment {
 
     fun triggerExperiment(){
-        val traceFiles: List<String> = listOf<String>("/shell_parquet", "/Pegasus_P2_parquet") //
+        val traceFiles: List<String> = listOf<String>("/shell_parquet","/Pegasus_P2_parquet") //  "/shell_parquet","/Pegasus_P2_parquet"
         val policyNames: List<String> = listOf<String>("FIFO","HEFT","Random")
         val percentages: List<Int> = listOf<Int>(100, 60, 150)
         for (traceFile in traceFiles){
             for(policyName in policyNames){
                 for(percentage in percentages){
+                    println("--------------------Experiment started for ${traceFile} - ${policyName} - ${percentage}----------------------")
                     conductSchedulingRelatedExperiment(traceFile, policyName, percentage)
-                    println("--------------------Experiment Done for ${traceFile} - ${policyName} - ${percentage}----------------------")
+                    println("--------------------Experiment done for ${traceFile} - ${policyName} - ${percentage}----------------------")
                 }
             }
         }
     }
-
-    // used https://stackoverflow.com/questions/45315666/converting-callablet-java-method-to-kotlin for Callable in Kotlin
-//    private fun <T> createCallable(task: Callable<T>): Callable<T> {
-//        return object : Callable<T> {
-//            override fun call(): T  {
-//                try {
-//                    return task.call()
-//                } catch (e: Exception) {
-//                    //handle(e)
-//                    throw e
-//                }
-//            }
-//        }
-//    }
 
     private fun createHostSpec(nodeUid: Int, cpuVendor: String, cpuModel: String, cpuArch: String, cpuCoreCount: Int,
                                cpuMaxFrequency: Double, memoryVendor: String, memoryModel: String, memorySpeed: Double, memorySize: Long): HostSpec {
@@ -163,9 +151,13 @@ public class SchedulingAlgorithmComparatorExperiment {
             )
 
             val service = provisioner.registry.resolve(workflowService, WorkflowService::class.java)!!
-            service.isFaultInjected = true
+            service.isFaultInjected = false
+            val projectDirAbsolutePath = Paths.get("opendc-oda","opendc-oda-experiments").toAbsolutePath().toString()
+            val traceResourcesPath = Paths.get(projectDirAbsolutePath, "/src/main/resources/$traceFile")
+//            println("Trace resource -> $traceResourcesPath")
             val trace = Trace.open(
-                Paths.get(checkNotNull(SchedulingAlgorithmComparatorExperiment::class.java.getResource(traceFile)).toURI()),
+//                Paths.get(checkNotNull(SchedulingAlgorithmComparatorExperiment::class.java.getResource(traceFile)).toURI()),
+                traceResourcesPath,
                 format = "wtf"
             )
             coroutineScope {

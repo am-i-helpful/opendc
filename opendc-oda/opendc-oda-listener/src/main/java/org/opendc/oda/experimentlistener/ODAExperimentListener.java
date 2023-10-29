@@ -1,6 +1,7 @@
 package org.opendc.oda.experimentlistener;
 
-import org.opendc.oda.experimentrunner.SchedulingAlgorithmComparatorExperiment;
+import org.opendc.oda.experimentrunner.NodeAnomalyIdentifierExperimentRunner;
+import org.opendc.oda.experimentrunner.SchedulingAlgorithmComparatorExperimentRunner;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -22,10 +23,8 @@ public class ODAExperimentListener {
     //socket server port on which it will listen
     private static final int PORT = 10000;
     static boolean EXIT_MESSAGE = false;
-    public static void main(String[] args) {
-        //startApplicationServer();
-        SchedulingAlgorithmComparatorExperiment exp = new SchedulingAlgorithmComparatorExperiment();
-        exp.triggerExperiment();
+    public static void main(String[] args) throws IOException {
+        startApplicationServer();
     }
 
     private static void startApplicationServer() throws IOException {
@@ -69,39 +68,48 @@ class ODAblerConnectionHandler extends Thread{
     public void run()
     {
         String message;
-        System.out.println("Testing");
+//        System.out.println("Testing");
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         //create ObjectOutputStream object
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
         try{
-            message = reader.readLine();
+            message = reader.readLine().toUpperCase();
             System.out.println("Message Received: " + message);
             //write object to Socket
-            writer.write("Hi Client - I am done!");
-            writer.newLine();
-            writer.flush();
             //close resources if termination signal received
             // and terminate the server once client sends termination request
-            if(message.equalsIgnoreCase("TERMINATE")) {
+            if(message.equals("TERMINATE")) {
                 writer.write("Shutting down OpenDC experiment server!!");
                 writer.newLine();
                 writer.flush();
-                reader.close();
-                writer.close();
-                in.close();
-                out.close();
-                socket.close();
                 ODAExperimentListener.EXIT_MESSAGE = true;
-                System.out.println("Shut down done");
+                System.out.println("OpenDC server shut down signalled!");
             }
-            else{
-                if(message.equalsIgnoreCase("ENERGY")){
-
+            else if(message.equals("ENERGY")){
+                    SchedulingAlgorithmComparatorExperimentRunner exp = new SchedulingAlgorithmComparatorExperimentRunner();
+                    message = exp.runExperiment();
+                    if(message != null)
+                        writer.write("OpenDC energy experiment result -> " + message +" !!");
+                    else
+                        writer.write("OpenDC energy experiment FAILED!!");
+                    writer.newLine();
+                    writer.flush();
                 }
-                else if(message.equalsIgnoreCase("ANOMALY")){
-
+                else if(message.equals("ANOMALY")){
+                    NodeAnomalyIdentifierExperimentRunner exp = new NodeAnomalyIdentifierExperimentRunner();
+                    message = exp.runExperiment();
+                    if(message != null)
+                        writer.write("OpenDC energy experiment result -> " + message +" !!");
+                    else
+                        writer.write("OpenDC energy experiment FAILED!!");
+                    writer.newLine();
+                    writer.flush();
                 }
-            }
+            reader.close();
+            writer.close();
+            in.close();
+            out.close();
+            socket.close();
         }
         catch (Exception e) {
             e.printStackTrace();
